@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">ISI Covid</string>
+    <string name="medicalString">medical</string>
+    <string name="EducationString">Education</string>
+    <string name="economicStr">Economy</string>
+    <string name="manageStr">Management and Engineering</string>
+    <string name="medicineStr">Pharmacology</string>
+    <string name="psycologyStr">Psychology</string>
+    <string name="tourismStr">Tourism</string>
+    <string name="yearSortStr">Sorted by year</string>
+</resources>
