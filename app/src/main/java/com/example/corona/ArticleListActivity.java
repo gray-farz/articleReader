@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,9 +21,11 @@ import android.widget.Toast;
 
 import com.example.corona.adapter.AdapterArticle;
 import com.example.corona.database.AppDatabase;
+import com.example.corona.interfaces.AbstractView;
 import com.example.corona.interfaces.InterfaceBetweenListAndAdapter;
 import com.example.corona.interfaces.AfterGetListFromDatabase;
 import com.example.corona.model.ModelRoom;
+import com.example.corona.presenter.PresenterImpl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,7 +35,7 @@ import java.util.List;
 
 public class ArticleListActivity extends AppCompatActivity implements AfterGetListFromDatabase,
         InterfaceBetweenListAndAdapter, View.OnClickListener
-        , DownloadTask.AfterDownload
+        , DownloadTask.AfterDownload, AbstractView
 {
     RecyclerView recyclerArticles;
     ProgressBar progressBar;
@@ -49,7 +52,7 @@ public class ArticleListActivity extends AppCompatActivity implements AfterGetLi
     String linkOneArticle;
     String category;
     String catGroup;
-
+    PresenterImpl presenterImpl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +64,8 @@ public class ArticleListActivity extends AppCompatActivity implements AfterGetLi
         setClickListener();
         setUp();
         getResponse();
+
+        presenterImpl = new PresenterImpl(this);
 
     }
 
@@ -183,25 +188,8 @@ public class ArticleListActivity extends AppCompatActivity implements AfterGetLi
     @Override
     public void getOneArticleProperties(String title, String year,
                                         String abstractionn, String link) {
-        linkOneArticle = link;
-        fileName = linkOneArticle.substring
-                (linkOneArticle.lastIndexOf("/") + 1);
 
-        File dir = new File(Environment.getExternalStorageDirectory()
-                .getAbsolutePath()
-                + Global.FOLDER_NAME_APP + fileName);
-        if (dir.exists())
-            openPdfActivity();
-        else
-        {
-            txtTitle.setText(title);
-            txtYear.setText(year);
-            txtAbstraction.setText(abstractionn);
-            if(frameOneArticle.getVisibility() == View.GONE)
-            {
-                frameOneArticle.setVisibility(View.VISIBLE);
-            }
-        }
+        presenterImpl.getOneArticleProperties(title,year,abstractionn,link);
     }
 
     @Override
@@ -225,47 +213,9 @@ public class ArticleListActivity extends AppCompatActivity implements AfterGetLi
         switch (view.getId())
         {
             case R.id.layoutDownload:
-                askForPermissions();
-                //goToDoDownload();
+                presenterImpl.askForPermissions2();
                 break;
         }
-    }
-    public void askForPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-        {
-            if (!Environment.isExternalStorageManager())
-            {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                startActivity(intent);
-                return;
-            }
-        }
-        goToDoDownload();
-    }
-
-    private void goToDoDownload()
-    {
-        try
-        {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
-                    +Global.FOLDER_NAME_APP);
-            if(!file.exists())
-            {
-                Log.d("aaa", "! exist");
-                file.mkdirs();
-                file.createNewFile();
-            }
-        }catch (FileNotFoundException e)
-        {
-            Toast.makeText(this, ""+e.toString(), Toast.LENGTH_SHORT).show();
-        }catch (IOException e)
-        {
-            Toast.makeText(this, ""+e.toString(), Toast.LENGTH_SHORT).show();
-        }
-
-        DownloadTask downloadTask = new DownloadTask(this
-                ,linkOneArticle, fileName);
-        downloadTask.execute();
     }
 
 
@@ -282,15 +232,47 @@ public class ArticleListActivity extends AppCompatActivity implements AfterGetLi
         else
         {
             Toast.makeText(this, "File downloaded successfully", Toast.LENGTH_SHORT).show();
-            openPdfActivity();
+            openPdfActivity2(fileName);
         }
     }
-    private void openPdfActivity()
-    {
-        //startActivity(new Intent(MainActivity.this,PdfActivity.class));
+
+    @Override
+    public void openPdfActivity2(String fileNameParam) {
         Intent intent = new Intent(ArticleListActivity.this,
                 PdfActivity.class);
+        fileName = fileNameParam;
         intent.putExtra("fileName",fileName);
         startActivity(intent);
+    }
+
+    @Override
+    public void setWidgetsOneArticleView(String title, String year, String abstraction) {
+        txtTitle.setText(title);
+        txtYear.setText(year);
+        txtAbstraction.setText(abstraction);
+        if(frameOneArticle.getVisibility() == View.GONE)
+        {
+            frameOneArticle.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void openPermissionDialogForAndroid11() {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+        startActivity(intent);
+    }
+
+    @Override
+    public void showToast(String str) {
+        Toast.makeText(this, str, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void makeDownloadTaskSample(String link, String fileNameParam)
+    {
+        fileName = fileNameParam;
+        DownloadTask downloadTask = new DownloadTask(this
+                ,link, fileName);
+        downloadTask.execute();
     }
 }

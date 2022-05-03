@@ -27,10 +27,12 @@ public class DownloadTask extends AsyncTask<Void,Integer,String>
     AfterDownload afterDownload;
 
     public DownloadTask(Context context, String url, String fileName) {
+
         this.context = context;
         this.urlGlobal = url;
         this.fileName = fileName;
         this.afterDownload = (AfterDownload) context;
+        Log.d("aaa", "DownloadTask: ");
     }
 
     @Override

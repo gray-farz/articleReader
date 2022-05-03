@@ -1,5 +1,6 @@
 package com.example.corona.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.example.corona.R;
+import com.example.corona.interfaces.InterfaceBetweenListAndAdapter;
 import com.example.corona.model.ModelRoom;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +20,10 @@ import java.util.List;
 public class AdapterSearch extends RecyclerView.Adapter<AdapterSearch.ResponseViewHolder> {
 
     private List<ModelRoom> responseList = new ArrayList<>();
-    public AdapterSearch(List<ModelRoom> responseList) {
+    private InterfaceBetweenListAndAdapter interfacee;
+    public AdapterSearch(List<ModelRoom> responseList, Context context) {
         this.responseList = responseList;
+        interfacee = (InterfaceBetweenListAndAdapter) context;
     }
 
     @NonNull
@@ -32,6 +36,13 @@ public class AdapterSearch extends RecyclerView.Adapter<AdapterSearch.ResponseVi
     @Override
     public void onBindViewHolder(@NonNull ResponseViewHolder holder, int position) {
         holder.bindResponse(responseList.get(position));
+        holder.txtMore.setOnClickListener(view ->
+        {
+            interfacee.getOneArticleProperties(responseList.get(position).getTitle(),
+                    responseList.get(position).getYear(),
+                    responseList.get(position).getAbstractArticle(),
+                    responseList.get(position).getLink());
+        });
     }
 
     @Override

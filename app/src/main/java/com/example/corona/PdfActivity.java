@@ -21,9 +21,12 @@ public class PdfActivity extends AppCompatActivity {
         pdfView = findViewById(R.id.pdfView);
 
         Bundle extras=getIntent().getExtras();
-        if(extras!=null) {
-            if (extras.containsKey("fileName")) {
+        if(extras!=null)
+        {
+            if (extras.containsKey("fileName"))
+            {
                 fileName = extras.getString("fileName");
+                Log.d("aaa", "PdfActivity "+fileName);
                 File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
                         + Global.FOLDER_NAME_APP + fileName);
                 if (dir.exists())
